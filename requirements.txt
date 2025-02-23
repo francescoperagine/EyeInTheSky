@@ -12,3 +12,4 @@ matplotlib
 protobuf
 pyarrow
 pipreqs
+ipython==7.34.0
