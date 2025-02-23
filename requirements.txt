@@ -2,7 +2,7 @@ loguru
 python-dotenv
 PyYAML
 setuptools
-torch==2.6.0
+torch==2.5.1
 tqdm
 typer
 ultralytics
