@@ -1,0 +1,18 @@
+services:
+  carla-simulator:
+    build:
+      context: .
+      dockerfile: Dockerfile.gpu
+    ports:
+      - "2000-2002:2000-2002"
+    volumes:
+      - ./data/raw/carla_simulator:/data/raw/carla_simulator
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all

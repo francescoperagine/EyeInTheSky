@@ -1,0 +1,14 @@
+loguru
+python-dotenv
+PyYAML
+setuptools
+torch==2.6.0
+tqdm
+typer
+ultralytics
+wandb
+ray
+matplotlib
+protobuf
+pyarrow
+pipreqs

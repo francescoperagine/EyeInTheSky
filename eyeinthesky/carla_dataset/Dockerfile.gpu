@@ -1,0 +1,33 @@
+# Dockerfile.gpu
+FROM carlasim/carla:latest
+
+USER root
+
+# Install wget for downloading keys
+RUN apt-get update && apt-get install -y wget
+
+# Add NVIDIA repository keys
+RUN wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64/cuda-keyring_1.0-1_all.deb && \
+    dpkg -i cuda-keyring_1.0-1_all.deb && \
+    rm cuda-keyring_1.0-1_all.deb
+
+# Install Python packages
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+    python3-pip \
+    python3-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN pip3 install --no-cache-dir pygame numpy opencv-python
+
+# Create data directory
+RUN mkdir -p /data/raw/carla_simulator && \
+    chmod -R 777 /data
+
+WORKDIR /simulation
+COPY carla_simulator.py /simulation/
+RUN chmod +x /simulation/carla_simulator.py
+
+USER carla
+
+CMD ["/bin/bash", "-c", "/home/carla/CarlaUE4.sh -RenderOffScreen"]

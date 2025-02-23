@@ -1,0 +1,17 @@
+services:
+  carla-simulator:
+    build:
+      context: .
+      dockerfile: Dockerfile.cpu
+    ports:
+      - "2000:2000"
+      - "2001:2001"
+      - "2002:2002"
+    volumes:
+      - ./data/raw/carla_simulator:/data/raw/carla_simulator
+    # Add healthcheck to ensure server is ready
+    healthcheck:
+      test: ["CMD-SHELL", "netstat -tuln | grep 2000 || exit 1"]
+      interval: 2s
+      timeout: 5s
+      retries: 10

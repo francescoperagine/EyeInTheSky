@@ -1,0 +1,19 @@
+# Dockerfile.cpu.minimal
+FROM carlasim/carla:latest
+
+USER root
+
+# Remove NVIDIA repository
+RUN rm -f /etc/apt/sources.list.d/cuda*
+
+# Create data directory
+RUN mkdir -p /data/raw/carla_simulator && \
+    chmod -R 777 /data
+
+WORKDIR /simulation
+COPY carla_simulator.py /simulation/
+RUN chmod +x /simulation/carla_simulator.py
+
+USER carla
+
+CMD /bin/bash CarlaUE4.sh -RenderOffScreen
