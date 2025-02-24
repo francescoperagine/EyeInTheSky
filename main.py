@@ -6,6 +6,8 @@ import os
 import sys
 import locale
 import typer
+import subprocess
+import sys
 
 sys.dont_write_bytecode = True
 locale.getpreferredencoding = lambda: "UTF-8"
@@ -15,6 +17,10 @@ app = typer.Typer()
 
 @app.command()
 def main():
+
+    subprocess.check_call([sys.executable, "-m", "pip", "install", "-r", "requirements.txt"])
+    subprocess.check_call([sys.executable, "-m", "pip", "install", "-e", "."])
+
     config_path = Path(os.getcwd()) / 'config' / 'config.yaml'
     print(f"Loading config from {config_path}")
     config = EyeConfig.load(config_path)

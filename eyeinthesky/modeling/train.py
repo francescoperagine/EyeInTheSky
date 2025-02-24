@@ -36,7 +36,7 @@ class EyeBuilder:
         self.model = YOLO(f"{self.config['model_name']}.pt")
         return self.model
 
-    def train_yolo(self, config, data, device, model_name):
+    def train_yolo(self, config, data, device):
         self.model.train(data=data, device=device, **config)
     
     def train(self, device: str) -> None:
@@ -56,7 +56,14 @@ class EyeBuilder:
         if not self.model:
             self.initialize_model()
             
-        space = self.config["tune"]["space"]
+        raw_space = self.config["tune"]["space"]
+        space = {}
+        for key, value in raw_space.items():
+            if isinstance(value, list):
+                space[key] = tune.choice(value)
+            else:
+                space[key] = value
+                
         tune_kwargs = self.config["shared_args"] | self.config["tune"]["fixed_args"]
         
         self.logger.info(f"Tuning space: {space}")
