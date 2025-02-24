@@ -1,40 +1,79 @@
 import typer
 from pathlib import Path
-from ultralytics import YOLO, checks, settings
-from eyeinthesky.config import ProjectConfig
+from ultralytics import YOLO, settings
 import wandb
-
 from loguru import logger
-import os
+from ray import tune
+from ray.tune.tune_config import TuneConfig
+from typing import Dict, Optional, Union
+import logging
 
 app = typer.Typer()
 
-@app.command()
-def main():
+class EyeBuilder:
+    def __init__(self, config: Dict, dataset_path: Union[str, Path]):
+        self.config = config
+        self.dataset_path = Path(dataset_path)
+        
+        # Setup logging
+        self.logger = logging.getLogger(__name__)
+        
+        # Initialize model attribute
+        self.model = None
 
-    PROJECT_ROOT = Path(os.getcwd())
+    def wandb_init(self, wandb_key: Optional[str] = None) -> None:
+        """Setup Weights & Biases tracking."""
+        if wandb_key:
+            wandb.login(key=wandb_key)
+        wandb.init(
+            project=self.config["project_name"],
+            dir=self.config["wandb"]["dir"]
+        )
+        settings.update({"wandb": True})
 
-    config_path = os.path.join(PROJECT_ROOT, "config")
-    config_file = os.path.join(config_path, "config.yaml")
-    config = ProjectConfig.get_config(str(config_file))
+    def initialize_model(self) -> YOLO:
+        """Initialize the YOLO model."""
+        self.model = YOLO(f"{self.config['model_name']}.pt")
+        return self.model
+
+    def train_yolo(self, config, data, device, model_name):
+        self.model.train(data=data, device=device, **config)
     
-    dataset_file = f"{Path(config_path) / config['dataset_name']}.yaml"
+    def train(self, device: str) -> None:
+        """Train the YOLO model with specified parameters."""
+        if not self.model:
+            self.initialize_model()
+            
+        train_kwargs = self.config["shared_args"] | self.config["train"]
+        self.model.train(
+            data=str(self.dataset_path),
+            device=device,
+            **train_kwargs
+        )
 
-    wandb_key = ProjectConfig.get_wandb_key()
-    device = ProjectConfig.get_device()
-
-    wandb.login(key=wandb_key)
-    wandb.init(project=config["project_name"], dir=config["wandb"]["dir"])
-    settings.update({"wandb": True})
-
-    logger.info(f"Performing training for model {config['model_name']}...")
-    logger.info(checks())
-
-    kwargs = config["shared_args"] | config["train"]
-    
-    model = YOLO(f"{config['model_name']}.pt")
-
-    train_results = model.train(data=dataset_file, device=device, **kwargs)
-
-if __name__ == "__main__":
-    app()
+    def tune(self, device: str) -> tune.ExperimentAnalysis:
+        """Perform hyperparameter tuning on the model."""
+        if not self.model:
+            self.initialize_model()
+            
+        space = self.config["tune"]["space"]
+        tune_kwargs = self.config["shared_args"] | self.config["tune"]["fixed_args"]
+        
+        self.logger.info(f"Tuning space: {space}")
+        self.logger.info(f"Tuning parameters: {tune_kwargs}")
+        
+        def train_fn(config):
+            self.model.train(
+                data=str(self.dataset_path),
+                device=device,
+                **tune_kwargs,
+                **config
+            )
+            
+        analysis = tune.run(
+            train_fn,
+            config=space,
+            trial_dirname_creator=lambda trial: trial.trial_id
+        )
+        
+        return analysis

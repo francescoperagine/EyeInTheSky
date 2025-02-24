@@ -5,7 +5,7 @@ from dotenv import dotenv_values
 import torch
 from ray import tune
 
-class ProjectConfig:
+class EyeConfig:
     """Singleton class for managing project configuration and secrets."""
     _instance = None
     
@@ -15,13 +15,13 @@ class ProjectConfig:
         return cls._instance
     
     @staticmethod
-    def get_config(config_file: str) -> dict:
+    def load(config_file: str) -> dict:
         """Load and return configuration from YAML file."""
         with open(config_file, "r") as f:
             return yaml.safe_load(f)
         
     @staticmethod
-    def get_space_dict(config) -> dict:
+    def get_space(config) -> dict:
         """Convert config space parameters to tune.uniform objects"""
         space = {}
         for param, value in config.items():
