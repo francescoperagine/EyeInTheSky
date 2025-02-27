@@ -18,7 +18,7 @@ figures_dir: "reports/figures"
 shared_args:
   workers: 8               # Number of data loader workers
   seed: 42                 # Random seed
-  exist_ok: False          # Don't increment run if exists
+  exist_ok: False          
   cos_lr: True            # Cosine learning rate
   imgsz: 640               # Input image size
   plots: True

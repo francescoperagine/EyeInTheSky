@@ -109,12 +109,13 @@ class EyeBuilder:
         result_grid = self.model.tune(
             data="VisDrone.yaml",
             optimizer="AdamW",
-            epochs=30,
-            iterations=300,
+            epochs=10,
+            iterations=10,
             device=device,
-            plots=False,
+            imgsz=640,
+            plots=True,
             cos_lr=True,
-            save=False,
+            save=True,
             val=False,
             space=search_space,
         )
