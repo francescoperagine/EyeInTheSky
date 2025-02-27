@@ -7,6 +7,6 @@ typer==0.15.1
 ultralytics==8.3.78
 wandb==0.19.7
 matplotlib==3.10.0
-pyarrow==19.0.1
+pyarrow==19.0.0
 tensorboardx==2.6.0
-setuptools==57.4.0
+setuptools==75.1.0

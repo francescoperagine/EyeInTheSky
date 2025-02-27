@@ -13,10 +13,8 @@ class EyeBuilder:
         self.config = config
         self.dataset_path = dataset_path
         
-        # Setup logging
         self.logger = logging.getLogger(__name__)
         
-        # Initialize model attribute
         self.model = model if model else YOLO(f"{self.config['model_name']}.pt")
 
     def wandb_init(self, wandb_key: Optional[str] = None, project_root: Optional[Union[str, Path]] = None) -> None:
@@ -95,7 +93,6 @@ class EyeBuilder:
         result_grid = self.model.tune(
             data=str(self.dataset_path),
             device=device,
-            cache=self.config["tune"]["cache"],
             project=self.config["project_name"],
             name=self.config["tune"]["name"],
             epochs=self.config["tune"]["epochs"],
