@@ -42,6 +42,21 @@ tune:
   fixed_args:
     project: "models"
     name: "YOLOv12-VisDrone-Tuning"
+    batch_size: 16
+    iterations: 20
+    workers: 8
+    seed: 42
+    plots: True
+    val: False
+    cos_lr: True
+    use_ray: True
+    imgsz: 640 
+    exist_ok: True
+    save: True
+    save_period: 10
+    cache: True
+
+
     # save: False             # Save checkpoints
 
   # iterations: 20
