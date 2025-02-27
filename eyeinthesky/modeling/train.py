@@ -93,7 +93,9 @@ class EyeBuilder:
         result_grid = self.model.tune(
             data=str(self.dataset_path),
             device=device,
+            cache=self.config["tune"]["cache"],
             project=self.config["project_name"],
+            name=self.config["tune"]["name"],
             epochs=self.config["tune"]["epochs"],
             iterations=self.config["tune"]["iterations"],
             batch_size=self.config["tune"]["batch_size"],

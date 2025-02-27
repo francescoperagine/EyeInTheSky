@@ -39,22 +39,22 @@ val:
   iou: 0.6
 
 tune:
-  fixed_args:
-    project: "models"
-    name: "YOLOv12-VisDrone-Tuning"
-    epochs: 3   
-    iterations: 3
-    batch_size: 16
-    workers: 8
-    seed: 42
-    plots: True
-    val: False
-    cos_lr: True
-    use_ray: True
-    imgsz: 640 
-    exist_ok: True
-    save: True
-    save_period: 10
+  project: "models"
+  name: "YOLOv12-VisDrone-Tuning"
+  epochs: 3   
+  iterations: 3
+  batch_size: 16
+  workers: 8
+  seed: 42
+  plots: True
+  val: False
+  cos_lr: True
+  use_ray: True
+  imgsz: 640 
+  exist_ok: True
+  save: True
+  save_period: 10
+  cache: "True"
 
 wandb:
   dir: "reports/"
