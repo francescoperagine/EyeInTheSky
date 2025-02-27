@@ -9,9 +9,9 @@ import os
 app = typer.Typer()
 
 class EyeBuilder:
-    def __init__(self, config: Dict, dataset_path: Union[str, Path], model: Optional[YOLO] = None) -> None:
+    def __init__(self, config: Dict, dataset_path, model: Optional[YOLO] = None) -> None:
         self.config = config
-        self.dataset_path = Path(dataset_path)
+        self.dataset_path = dataset_path
         
         # Setup logging
         self.logger = logging.getLogger(__name__)
@@ -67,7 +67,7 @@ class EyeBuilder:
             "lr0": (1e-5, 1e-3),     # Keep it low for fine-tuning
             "lrf": (0.01, 0.1),         # Learning rate factor
             "momentum": (0.9, 0.95),         # High momentum for stability
-            "weight_decay": (0.0, 0.0001),         # Minimal regularization
+            "weight_decay": (0.0, 0.001),         # Minimal regularization
             "box": (1.0, 20.0),  # box loss gain
             "cls": (0.2, 4.0),  # cls loss gain (scale with pixels)
             "dfl": (0.4, 6.0),  # dfl loss gain
@@ -75,23 +75,12 @@ class EyeBuilder:
             "degrees": (0.0, 45.0),  # image rotation (+/- deg)
         }
 
-        # search_space = {  # key: (min, max, gain(optional))
-        #     "lr0": (1e-5, 1e-1),  # initial learning rate (i.e. SGD=1E-2, Adam=1E-3)
-        # }
-            # "lrf": (0.0001, 0.1),  # final OneCycleLR learning rate (lr0 * lrf)
-            # "momentum": (0.7, 0.98, 0.3),  # SGD momentum/Adam beta1
-            # "weight_decay": (0.0, 0.001),  # optimizer weight decay 5e-4
             # "warmup_epochs": (0.0, 5.0),  # warmup epochs (fractions ok)
             # "warmup_momentum": (0.0, 0.95),  # warmup initial momentum
-            # "box": (1.0, 20.0),  # box loss gain
-            # "cls": (0.2, 4.0),  # cls loss gain (scale with pixels)
-            # "dfl": (0.4, 6.0),  # dfl loss gain
             # "hsv_h": (0.0, 0.1),  # image HSV-Hue augmentation (fraction)
             # "hsv_s": (0.0, 0.9),  # image HSV-Saturation augmentation (fraction)
             # "hsv_v": (0.0, 0.9),  # image HSV-Value augmentation (fraction)
-            # "degrees": (0.0, 45.0),  # image rotation (+/- deg)
             # "translate": (0.0, 0.9),  # image translation (+/- fraction)
-            # "scale": (0.0, 0.95),  # image scale (+/- gain)
             # "shear": (0.0, 10.0),  # image shear (+/- deg)
             # "perspective": (0.0, 0.001),  # image perspective (+/- fraction), range 0-0.001
             # "flipud": (0.0, 1.0),  # image flip up-down (probability)
@@ -102,21 +91,23 @@ class EyeBuilder:
             # "copy_paste": (0.0, 1.0),  # segment copy-paste (probability)
 
         print(f"Space: {search_space}")
-        kwargs = self.config["shared_args"] | self.config["tune"]["fixed_args"]
-        kwargs["device"] = device
 
-            # data=str(self.dataset_path),
         result_grid = self.model.tune(
-            data="VisDrone.yaml",
-            optimizer="AdamW",
-            epochs=10,
-            iterations=10,
+            data=str(self.dataset_path),
             device=device,
-            imgsz=640,
-            plots=True,
-            cos_lr=True,
-            save=True,
-            val=False,
+            epochs=self.config["tune"]["epochs"],
+            batch_size=self.config["tune"]["batch_size"],
+            iterations=self.config["tune"]["iterations"],
+            workers=self.config["tune"]["workers"],
+            seed=self.config["tune"]["seed"],
+            plots=self.config["tune"]["plots"],
+            val=self.config["tune"]["val"],
+            cos_lr=self.config["tune"]["cos_lr"],
+            use_ray=self.config["tune"]["use_ray"],
+            imgsz=self.config["tune"]["imgsz"],
+            exist_ok=self.config["tune"]["exist_ok"],
+            save=self.config["tune"]["save"],
+            save_period=self.config["tune"]["save_period"],
             space=search_space,
         )
         return result_grid
