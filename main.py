@@ -6,7 +6,6 @@ import os
 import sys
 import locale
 import typer
-import subprocess
 import sys
 
 sys.dont_write_bytecode = True
@@ -14,32 +13,35 @@ locale.getpreferredencoding = lambda: "UTF-8"
 
 app = typer.Typer()
 
-
 @app.command()
 def main():
 
-    subprocess.check_call([sys.executable, "-m", "pip", "install", "-r", "requirements.txt"])
-    subprocess.check_call([sys.executable, "-m", "pip", "install", "-e", "."])
+    project_root = Path(os.path.abspath(os.getcwd()))
+    print(f"Project root: {project_root}")
 
-    config_path = Path(os.getcwd()) / 'config' / 'config.yaml'
-    print(f"Loading config from {config_path}")
+    config_path = project_root / 'config' / 'config.yaml'
+    print(f"Config path: {config_path}")
+    
     config = EyeConfig.load(config_path)
     device = EyeConfig.get_device()
+    print(f"Device: {device}")
 
-    dataset_path = Path(os.path.abspath(os.path.join(os.getcwd(), '..'))) / 'config' / 'VisDrone.yaml'
-
+    dataset_path = 'VisDrone.yaml'
     builder = EyeBuilder(config=config, dataset_path=dataset_path)
 
-    wandb_key = EyeConfig.get_wandb_key()
+    secrets_path = project_root / ".env"
+    print(f"Secrets path: {secrets_path}")
 
-    builder.wandb_init(wandb_key)
+    wandb_api_key = EyeConfig.get_wandb_key(secrets_path)
 
+    builder.wandb_init(wandb_key=wandb_api_key, project_root=project_root)
+    
     analysis = builder.tune(device=device)
+    print(f"Analysis: {analysis}")
 
     plotter = EyePlotter()
     plotter.show_trial_results_metrics(analysis)
     plotter.show_results_plots(analysis, config["reports_dir"], config["name"])
-
 
 if __name__ == "__main__":
     app()

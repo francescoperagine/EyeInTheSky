@@ -30,7 +30,7 @@ train:
   project: "models"
   name: "YOLOv12-VisDrone-Training"
   epochs: 10             # Number of training epochs
-  save: False              # Save checkpoints
+  save: True              # Save checkpoints
   save_period: 10         # Save every X epochs
 
 val:
@@ -42,20 +42,16 @@ tune:
   fixed_args:
     project: "models"
     name: "YOLOv12-VisDrone-Tuning"
-    iterations: 10
-    use_ray: True
-    grace_period: 10 
-    warmup_epochs: 0        # Warmup epochs
-    save: True             # Save checkpoints
-    save_period: 10        # Save every X epochs
-    epochs: 10             # Number of training epochs
+    # warmup_epochs: 0        # Warmup epochs
+    # save: False             # Save checkpoints
 
-  space:
-    optimizer: ['adamw', 'SGD']  
-    lr0: [0.00001, 0.00005, 0.0001]     # Keep it low for fine-tuning
-    momentum: [0.9, 0.95, 0.98]          # High momentum for stability
-    weight_decay: [0.0, 0.0001]          # Minimal regularization
-    cls: [0.5, 1, 1.5]           # Higher cls weights to improve classification
+  # iterations: 20
+  # epochs: 10             # Number of training epochs
+  # search_space:
+  #   lr0: (0.00001, 0.00005, 0.0001)     # Keep it low for fine-tuning
+  #   momentum: (0.9, 0.95, 0.98)         # High momentum for stability
+  #   weight_decay: (0.0, 0.0001)         # Minimal regularization
+  #   cls: (0.5, 1, 1.5)                  # Higher cls weights to improve classification
 
 wandb:
-  dir: "reports/wandb"
+  dir: "reports/"
