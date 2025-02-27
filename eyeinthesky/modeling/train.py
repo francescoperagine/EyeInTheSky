@@ -63,26 +63,21 @@ class EyeBuilder:
     def tune(self, device: str):
         """Perform hyperparameter tuning on the model."""
 
-        # raw_space = self.config["tune"]["space"]
-        # space = {}
-        # for key, value in raw_space.items():
-        #     if isinstance(value, list):
-        #         space[key] = tune.choice(value)
-        #     else:
-        #         space[key] = value
-        # search_space = {
-        #     "lr0": (0.00001, 0.0001),     # Keep it low for fine-tuning
-        #     "lrf": (0.01, 0.1),         # Learning rate factor
-        #     "momentum": (0.9, 0.95),         # High momentum for stability
-        #     "weight_decay": (0.0, 0.0001),         # Minimal regularization
-        #     "cls": (0.5, 1.5),   
-
-        # }
-
-        search_space = {  # key: (min, max, gain(optional))
-            # 'optimizer': tune.choice(['SGD', 'Adam', 'AdamW', 'NAdam', 'RAdam', 'RMSProp']),
-            "lr0": (1e-5, 1e-1),  # initial learning rate (i.e. SGD=1E-2, Adam=1E-3)
+        search_space = {
+            "lr0": (1e-5, 1e-3),     # Keep it low for fine-tuning
+            "lrf": (0.01, 0.1),         # Learning rate factor
+            "momentum": (0.9, 0.95),         # High momentum for stability
+            "weight_decay": (0.0, 0.0001),         # Minimal regularization
+            "box": (1.0, 20.0),  # box loss gain
+            "cls": (0.2, 4.0),  # cls loss gain (scale with pixels)
+            "dfl": (0.4, 6.0),  # dfl loss gain
+            "scale": (0.0, 0.95),  # image scale (+/- gain)
+            "degrees": (0.0, 45.0),  # image rotation (+/- deg)
         }
+
+        # search_space = {  # key: (min, max, gain(optional))
+        #     "lr0": (1e-5, 1e-1),  # initial learning rate (i.e. SGD=1E-2, Adam=1E-3)
+        # }
             # "lrf": (0.0001, 0.1),  # final OneCycleLR learning rate (lr0 * lrf)
             # "momentum": (0.7, 0.98, 0.3),  # SGD momentum/Adam beta1
             # "weight_decay": (0.0, 0.001),  # optimizer weight decay 5e-4
@@ -114,12 +109,15 @@ class EyeBuilder:
         result_grid = self.model.tune(
             data="VisDrone.yaml",
             optimizer="AdamW",
+            epochs=30,
+            iterations=300,
+            device=device,
             plots=False,
+            cos_lr=True,
             save=False,
             val=False,
+            space=search_space,
         )
-            # space=search_space,
-            # **kwargs,
         return result_grid
 
     # def tune(self, device: str) -> tune.ExperimentAnalysis:

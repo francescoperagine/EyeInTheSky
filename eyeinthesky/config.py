@@ -38,24 +38,23 @@ class EyeConfig:
             print(f"Error setting device: {e}")
 
     @staticmethod
-    def get_wandb_key(path: Path) -> str:
+    def get_wandb_key_colab() -> str:
+        from google.colab import userdata # type: ignore
+        if userdata.get("WANDB_API_KEY") is not None:
+            return userdata.get("WANDB_API_KEY")
+        else:
+            raise ValueError("No WANDB key found")
+    @staticmethod
+    def get_wandb_key(path: Path = ".env") -> str:
         """Get W&B API key from Colab userdata or environment variable"""
-        # try:
-        #     # Try to import google.colab (will raise ImportError if not in Colab)
-        #     from google.colab import userdata
-        #     if userdata.get("WANDB_API_KEY") is not None:
-        #         return userdata.get("WANDB_API_KEY")
-        #     else:
-        #         raise ValueError("No WANDB key found")
-        # except:
-        # Not in Colab, use environment variable instead
+            
         from dotenv import dotenv_values
         
         if not path.exists():
             raise FileNotFoundError(f"Could not find .env file at {path}")
         
         print(f"Loading secrets from {path}")
-        # Use the provided path parameter instead of hardcoded ".env"
+        
         secrets = dotenv_values(path)
         print(f"Found keys: {list(secrets.keys())}")
         

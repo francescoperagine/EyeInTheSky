@@ -42,7 +42,6 @@ tune:
   fixed_args:
     project: "models"
     name: "YOLOv12-VisDrone-Tuning"
-    # warmup_epochs: 0        # Warmup epochs
     # save: False             # Save checkpoints
 
   # iterations: 20
