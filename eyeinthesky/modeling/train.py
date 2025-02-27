@@ -94,7 +94,6 @@ class EyeBuilder:
             data=str(self.dataset_path),
             device=device,
             project=self.config["project_name"],
-            name=self.config["tune"]["name"],
             epochs=self.config["tune"]["epochs"],
             iterations=self.config["tune"]["iterations"],
             batch_size=self.config["tune"]["batch_size"],

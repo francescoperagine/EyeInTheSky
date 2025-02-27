@@ -55,7 +55,6 @@ tune:
     exist_ok: True
     save: True
     save_period: 10
-    cache: True
 
 wandb:
   dir: "reports/"
