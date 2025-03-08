@@ -1,7 +1,6 @@
 import matplotlib.pyplot as plt
-from ray.tune import ResultGrid
 
-class EyePlotter:
+class Plotter:
     _instance = None
     
     def __new__(cls):
@@ -10,12 +9,12 @@ class EyePlotter:
         return cls._instance
 
     @staticmethod
-    def show_trial_results_metrics(result_grid: ResultGrid):
+    def show_trial_results_metrics(result_grid):
         for i, result in enumerate(result_grid):
             print(f"Trial #{i}: Configuration: {result.config}, Last Reported Metrics: {result.metrics}")
 
     @staticmethod
-    def show_results_plots(result_grid: ResultGrid, destination_folder: str, experiment_name: str):
+    def show_results_plots(result_grid, destination_folder: str, experiment_name: str):
         for i, result in enumerate(result_grid):
             plt.plot(
             result.metrics_dataframe["training_iteration"],

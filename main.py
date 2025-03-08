@@ -1,39 +1,53 @@
-from eyeinthesky.config import EyeConfig
-from eyeinthesky.modeling.train import EyeBuilder
-from eyeinthesky.plots import EyePlotter
+from eyeinthesky.config import Config
+from eyeinthesky.modeling.trainer import Trainer
+from eyeinthesky.modeling.tuner import Tuner
 from pathlib import Path
 import os
 import sys
 import locale
 import typer
+import sys
+from ultralytics import YOLO
 
 sys.dont_write_bytecode = True
 locale.getpreferredencoding = lambda: "UTF-8"
 
 app = typer.Typer()
 
-
 @app.command()
 def main():
-    config_path = Path(os.getcwd()) / 'config' / 'config.yaml'
-    print(f"Loading config from {config_path}")
-    config = EyeConfig.load(config_path)
-    device = EyeConfig.get_device()
 
-    dataset_path = Path(os.path.abspath(os.path.join(os.getcwd(), '..'))) / 'config' / 'VisDrone.yaml'
+    # subprocess.check_call([sys.executable, "-m", "venv", "venv"])
+    # subprocess.check_call(["source", "venv/bin/activate"])
+    # subprocess.check_call([sys.executable, "-m", "pip", "install", "-r", "requirements.txt"])
+    # subprocess.check_call([sys.executable, "-m", "pip", "install", "-e", "."])
 
-    builder = EyeBuilder(config=config, dataset_path=dataset_path)
+    project_root = Path(os.path.abspath(os.getcwd()))
+    print(f"Project root: {project_root}")
 
-    wandb_key = EyeConfig.get_wandb_key()
+    config_path = project_root / 'config' / 'config.yaml'
+    print(f"Config path: {config_path}")
+    
+    config = Config.load(config_path)
+    device = Config.get_device()
+    print(f"Device: {device}")
 
-    builder.wandb_init(wandb_key)
+    dataset_path = 'VisDrone.yaml'
 
-    analysis = builder.tune(device=device)
+    secrets_path = project_root / ".env"
+    print(f"Secrets path: {secrets_path}")
 
-    plotter = EyePlotter()
-    plotter.show_trial_results_metrics(analysis)
-    plotter.show_results_plots(analysis, config["reports_dir"], config["name"])
+    wandb_api_key = Config.get_wandb_key(secrets_path)
 
+    model = YOLO(f"{config['model_name']}.pt")
+
+    # For tuning
+    tuner = Tuner(model, config, dataset_path, wandb_api_key, project_root)
+    tuning_results = tuner.tune("config/search_space.json")
+
+    # For training
+    trainer = Trainer(model, config, dataset_path, wandb_api_key, project_root)
+    training_results = trainer.train()
 
 if __name__ == "__main__":
     app()

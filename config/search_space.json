@@ -1,0 +1,37 @@
+{
+    "optimizer": {
+      "type": "choice",
+      "values": ["SGD", "AdamW"]
+    },
+    "lr0": {
+      "type": "choice",
+      "values": [1e-5, 1e-4, 1e-3]
+    },
+    "lrf": {
+      "type": "choice",
+      "values": [0.01, 0.1]
+    },
+    "momentum": {
+      "type": "choice",
+      "values": [0.8, 0.9, 0.95]
+    },
+    "weight_decay": {
+      "type": "choice",
+      "values": [0.0, 0.001]
+    },
+    "box": {
+      "type": "uniform",
+      "min": 1.0,
+      "max": 20.0
+    },
+    "cls": {
+      "type": "uniform",
+      "min": 0.2,
+      "max": 4.0
+    },
+    "dfl": {
+      "type": "uniform",
+      "min": 0.4,
+      "max": 6.0
+    }
+  }

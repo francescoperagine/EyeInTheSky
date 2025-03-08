@@ -1,7 +1,7 @@
 train: true
-model_name: "yolo12n"
+model: "yolo12n.pt"
 
-project_name: "EyeInTheSky"
+project: "EyeInTheSky"
 dataset_name: "VisDrone"
 
 raw_data_dir: "data/raw"
@@ -14,48 +14,84 @@ models_dir: "models"
 reports_dir: "reports"
 figures_dir: "reports/figures"
 
-# Ray Tune Configuration
-shared_args:
-  workers: 8               # Number of data loader workers
-  seed: 42                 # Random seed
-  exist_ok: False          # Don't increment run if exists
-  cos_lr: True            # Cosine learning rate
-  imgsz: 640               # Input image size
-  plots: True
-  patience: 5             # Early stopping patience
-  val: False
-
-# Fixed Training Configuration
 train:
-  project: "models"
-  name: "YOLOv12-VisDrone-Training"
-  epochs: 10             # Number of training epochs
-  save: False              # Save checkpoints
-  save_period: 10         # Save every X epochs
-
+  model: "yolo12n"
+  project: "EyeInTheSky"
+  data: "VisDrone.yaml"
+  task: detect
+  device: 0
+  epochs: 1
+  batch: 16
+  workers: 8
+  seed: 42
+  plots: True
+  imgsz: 640
+  exist_ok: False
+  save: True
+  save_period: 10
+  val: True
+  warmup_epochs: 10
+  visualize: True
+  show: True
+  single_cls: False # (bool) train multi-class data as single-class
+  rect: False # (bool) rectangular training if mode='train' or rectangular validation if mode='val'
+  cos_lr: False # (bool) use cosine learning rate scheduler
+  resume: False # (bool) resume training from last checkpoint
+  amp: True # (bool) Automatic Mixed Precision (AMP) training, choices=[True, False], True runs AMP check
+  fraction: 1.0 # (float) dataset fraction to train on (default is 1.0, all images in train set)
+  freeze: None # (int | list, optional) freeze first n layers, or freeze list of layer indices during training
+  cache: False
 val:
+  project: "EyeInTheSky"
+  name: "YOLOv12-VisDrone-Validation"
   half: True
   conf: 0.25
   iou: 0.6
+  split: "test"
+  rect: True
+  plots: True
 
 tune:
-  fixed_args:
-    project: "models"
-    name: "YOLOv12-VisDrone-Tuning"
-    iterations: 10
-    use_ray: True
-    grace_period: 10 
-    warmup_epochs: 0        # Warmup epochs
-    save: True             # Save checkpoints
-    save_period: 10        # Save every X epochs
-    epochs: 10             # Number of training epochs
-
-  space:
-    optimizer: ['adamw', 'SGD']  
-    lr0: [0.00001, 0.00005, 0.0001]     # Keep it low for fine-tuning
-    momentum: [0.9, 0.95, 0.98]          # High momentum for stability
-    weight_decay: [0.0, 0.0001]          # Minimal regularization
-    cls: [0.5, 1, 1.5]           # Higher cls weights to improve classification
+  name: "YOLOv12-VisDrone-Tuning"
+  epochs: 20
+  iterations: 40
+  batch: 8
+  workers: 4
+  seed: 42
+  cos_lr: True
+  plots: True
+  val: True
+  use_ray: True
+  imgsz: 640
+  exist_ok: False
+  save: True
+  save_period: 10
+  cache: "disk"
 
 wandb:
-  dir: "reports/wandb"
+  dir: "reports/"
+
+# Merged class names (after merging 'people' into 'pedestrian')
+names:
+  0: person
+  1: bicycle
+  2: car
+  3: van
+  4: truck
+  5: tricycle
+  6: awning-tricycle
+  7: bus
+  8: motor
+
+# Translations
+translations:
+  italian:
+    0: persona
+    1: bicicletta
+    2: auto
+    3: furgone
+    4: camion
+    5: triciclo
+    6: triciclo-tendalino
+    7: autobus
+    8: motore
