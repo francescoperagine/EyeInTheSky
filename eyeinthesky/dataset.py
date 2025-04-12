@@ -2,10 +2,20 @@ from ultralytics.data.dataset import YOLODataset
 from ultralytics.utils import colorstr, LOGGER
 import numpy as np
 
-class VisDroneMergedDataset(YOLODataset):
+class VisDroneDataset(YOLODataset):
     """
     Custom dataset for VisDrone that merges pedestrian (0) and people (1) classes.
-    Handles class remapping at the earliest possible stage.
+    
+    This dataset handler performs class remapping at the earliest stage of the pipeline
+    by combining pedestrian and people into a single 'persona' class and shifting all 
+    other class indices down by one. The merged class mapping is stored as a class 
+    attribute for access during training and validation.
+    
+    The remapping happens in the get_labels() method which modifies the label tensors
+    directly, ensuring all downstream processing uses the merged classes.
+    
+    Class attributes:
+        merged_names (dict): New class mapping after merging pedestrian and people classes
     """
     
     # Define the merged names as a class attribute to be accessible from the trainer

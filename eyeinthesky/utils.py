@@ -1,13 +1,11 @@
 import torch
-import datetime
 from pathlib import Path
 import os
 import gc
-import json
 import yaml 
+import glob
 
-
-def load(config_file: str) -> dict:
+def load_config(config_file: str) -> dict:
     """Load and return configuration from YAML file."""
     with open(config_file, "r") as f:
         return yaml.safe_load(f)
@@ -56,19 +54,15 @@ def clear_cache():
     # Clear Python garbage collector
     gc.collect()
 
-def save_results(dir, name, results):
-    os.makedirs(dir, exist_ok=True)
-
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    results_path = f"{dir}/{name}_{timestamp}.json"
-
-    with open(results_path, 'w') as f:
-        json.dump(results, f, indent=4, default=str)
-    
-    print(f"{name} results saved to {results_path}")
-
 def get_device() -> str:
     try:
         return 0 if torch.cuda.is_available() else "cpu"
     except Exception as e:
         print(f"Error setting device: {e}")
+
+def remove_models():
+    pt_files = glob.glob("*.pt")
+    print("Files to be removed:", pt_files)
+
+    for file in pt_files:
+        os.remove(file)

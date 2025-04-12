@@ -1,36 +1,50 @@
-model: "yolo12n"
-wandb_project: "EyeInTheSky_merged"
-data: "VisDrone.yaml"
+wandb:
+  project: "EyeInTheSky"
+  group: "distillation"
+  dir: "reports"
+distillation:
+  use_cyclical_lr: False
+  feature_layers: [20]
+  feature_plot_interval: 20
+  temperature: 2.0
+  alpha: 0.5
+  max_lr: 0.01
+  cycle_size: 20
+  group_scalers: {0: 1.0, 1: 1.0, 2: 1.0}
+  teacher_model_path: "yolo12x.pt"
+  student_model_path: "yolo12n.pt"
 train:
-  model: "yolo12n"
   project: "EyeInTheSky"
   data: "VisDrone.yaml"
-  device: 0
+  pretrained: True
+  patience: 5
   task: detect
-  epochs: 300
-  batch: 16
-  workers: 8
+  epochs: 150
+  weight_decay: 0.0
+  lr0: 0.001
+  lrf: 0.001
+  nbs: 64
   seed: 42
   plots: True
-  imgsz: 640
   exist_ok: False
   save: True
-  save_period: 10
+  save_period: 5
   val: True
-  warmup_epochs: 10
+  warmup_epochs: 5
   visualize: True
   show: True
-  single_cls: False # (bool) train multi-class data as single-class
-  rect: False # (bool) rectangular training if mode='train' or rectangular validation if mode='val'
-  cos_lr: False
+  single_cls: False
+  rect: False
   resume: False
-  amp: True # (bool) Automatic Mixed Precision (AMP) training, choices=[True, False], True runs AMP check
   fraction: 1.0
   freeze: None
   cache: False
+  verbose: False
+  amp: True
 val:
   project: "EyeInTheSky"
-  name: "YOLOv12-VisDrone-Validation"
+  task: detect
+  data: "VisDrone.yaml"
   half: True
   conf: 0.25
   iou: 0.6
@@ -38,3 +52,7 @@ val:
   rect: True
   plots: True
   visualize: True
+  verbose: False
+  save_crop: True
+  save_conf: True
+  save_txt: True

@@ -1,38 +1,49 @@
 from ultralytics.models.yolo.detect import DetectionValidator
 from ultralytics.utils import colorstr
-from eyeinthesky.dataset import VisDroneMergedDataset
+from eyeinthesky.dataset import VisDroneDataset
 
 class MergedClassDetectionValidator(DetectionValidator):
     """
-    Custom validator that uses VisDroneDataset for validation/testing with merged classes.
+    Custom validator for evaluating models trained on merged VisDrone classes.
+    
+    Works in tandem with MergedClassDetectionTrainer to ensure that validation
+    uses the same class merging as training. The build_dataset() method creates
+    VisDroneDataset instances for validation, and set_model_attributes() updates
+    the model's class configuration to match the merged dataset.
+    
+    This allows for consistent metrics calculation across training and evaluation.
     """
     
     def build_dataset(self, img_path, mode="val", batch=None):
         """Build custom VisDroneDataset for validation."""
-        return VisDroneMergedDataset(
+        return VisDroneDataset(
             img_path=img_path,
             imgsz=self.args.imgsz,
             batch_size=batch or self.args.batch,
-            augment=False,  # no augmentation during validation
+            augment=False,
             hyp=self.args,
-            rect=True,  # rectangular validation for better performance
+            rect=self.args.rect,
             cache=None,
             single_cls=self.args.single_cls,
             stride=self.stride,
             pad=0.5,
             prefix=colorstr(f"{mode}: "),
             task=self.args.task,
-            classes=self.args.classes,
+            classes=None,
             data=self.data,
         )
-    
+       
     def set_model_attributes(self):
         """Update model attributes for merged classes if using a PyTorch model."""
         super().set_model_attributes()
         
-        # Update model names if it's a PyTorch model (not for exported models)
-        if hasattr(self.model, 'names') and hasattr(self.model, 'model'):
-            self.model.names = VisDroneMergedDataset.merged_names
-            if hasattr(self.data, 'names'):
-                self.data['names'] = VisDroneMergedDataset.merged_names
-                self.data['nc'] = len(VisDroneMergedDataset.merged_names)
+        # Then update model with the merged class names
+        if hasattr(self.model, 'names'):
+            # Use the merged names directly from the dataset class
+            self.model.names = VisDroneDataset.merged_names
+            self.model.nc = len(VisDroneDataset.merged_names)
+            
+            # Also update data dictionary
+            if hasattr(self, 'data'):
+                self.data['names'] = VisDroneDataset.merged_names
+                self.data['nc'] = len(VisDroneDataset.merged_names)

@@ -1,61 +1,117 @@
-# EyeInTheSky
+# Eye in the Sky: Drone-based Object Detection
 
-<a target="_blank" href="https://cookiecutter-data-science.drivendata.org/">
-    <img src="https://img.shields.io/badge/CCDS-Project%20template-328F97?logo=cookiecutter" />
-</a>
+## Overview
 
-A short description of the project.
+"Eye in the Sky" is a computer vision project developed as a thesis project for the Master of Science degree in Computer Science with Artificial Intelligence specialization at the Università degli Studi di Bari (UniBA). This research was supervised by Professor Gennaro Vessio and PhD Dr. Pasquale De Marinis.
 
-## Project Organization
+Focused on optimizing object detection models for drone imagery, it uses YOLOv12 models and implements knowledge distillation techniques to create efficient, lightweight models suitable for real-time detection on resource-constrained devices.
+
+The system can detect multiple object categories from the VisDrone dataset, including people, vehicles, and other common road/urban elements. While the current implementation focuses on object detection fundamentals, it provides the foundation for more advanced applications like traffic monitoring, search and rescue, or emergency response assistance.
+
+## Key Features
+
+- **Model Distillation**: Transfer knowledge from larger, more accurate teacher models to smaller, faster student models
+- **Custom Dataset Handling**: Modified VisDrone dataset with class merging for improved performance
+- **Feature Adaptation**: Innovative feature adaptation layers to maximize knowledge transfer
+- **Training Visualization**: Comprehensive metrics tracking and visualization
+- **Performance Optimization**: Cyclical learning rates and adaptive loss weighting
+
+## Project Structure
+
+This project follows the [Cookiecutter Data Science v2](https://github.com/drivendata/cookiecutter-data-science) template:
 
 ```
-├── LICENSE            <- Open-source license if one is chosen
-├── Makefile           <- Makefile with convenience commands like `make data` or `make train`
-├── README.md          <- The top-level README for developers using this project.
-├── data
-│   ├── external       <- Data from third party sources.
-│   ├── interim        <- Intermediate data that has been transformed.
-│   ├── processed      <- The final, canonical data sets for modeling.
-│   └── raw            <- The original, immutable data dump.
-│
-├── docs               <- A default mkdocs project; see www.mkdocs.org for details
-│
-├── models             <- Trained and serialized models, model predictions, or model summaries
-│
-├── notebooks          <- Jupyter notebooks. Naming convention is a number (for ordering),
-│                         the creator's initials, and a short `-` delimited description, e.g.
-│                         `1.0-jqp-initial-data-exploration`.
-│
-├── pyproject.toml     <- Project configuration file with package metadata for 
-│                         eyeinthesky and configuration for tools like black
-│
-├── references         <- Data dictionaries, manuals, and all other explanatory materials.
-│
-├── reports            <- Generated analysis as HTML, PDF, LaTeX, etc.
-│   └── figures        <- Generated graphics and figures to be used in reporting
-│
-├── requirements.txt   <- The requirements file for reproducing the analysis environment, e.g.
-│                         generated with `pip freeze > requirements.txt`
-│
-├── setup.cfg          <- Configuration file for flake8
-│
-└── eyeinthesky   <- Source code for use in this project.
-    │
-    ├── __init__.py             <- Makes eyeinthesky a Python module
-    │
-    ├── config.py               <- Store useful variables and configuration
-    │
-    ├── dataset.py              <- Scripts to download or generate data
-    │
-    ├── features.py             <- Code to create features for modeling
-    │
-    ├── modeling                
-    │   ├── __init__.py 
-    │   ├── predict.py          <- Code to run model inference with trained models          
-    │   └── train.py            <- Code to train models
-    │
-    └── plots.py                <- Code to create visualizations
+├── eyeinthesky        <- Source code package
+│   ├── notebooks      <- Jupyter notebooks for model training and distillation
+│   ├── modeling       <- Scripts for model training and evaluation
+├── requirements.txt   <- Package dependencies
+├── setup.py           <- Package installation script
+├── .env-sample        <- Sample environment variables template
 ```
 
---------
+## Getting Started
 
+### Prerequisites
+
+- Python 3.8+
+- PyTorch 2.0+
+- Weights & Biases account
+- CUDA-compatible GPU (recommended)
+
+### Installation
+
+1. Clone the repository:
+```bash
+git clone https://github.com/francescoperagine/EyeInTheSky.git
+cd eyeinthesky
+```
+
+2. Create and activate a virtual environment:
+```bash
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+```
+
+3. Install the package and dependencies:
+```bash
+pip install -e .
+pip install -r requirements.txt
+```
+
+4. Set up Weights & Biases:
+   - Create a `.env` file in the root directory using `.env-sample` as a template
+   - Add your W&B API key to the `.env` file
+
+## Usage
+
+### Using Jupyter Notebooks
+
+For experimentation and development:
+
+1. Navigate to the notebooks directory:
+```bash
+cd eyeinthesky/notebooks
+```
+
+2. Train a teacher model using `YOLO_VisDrone_train.ipynb`
+3. Update the configuration in `YOLO_VisDrone_distillation.ipynb` with the appropriate paths
+4. Run distillation using `YOLO_VisDrone_distillation.ipynb`
+
+### Key Components
+
+The distillation process includes several innovative components:
+
+- **FeatureAdaptation**: Custom layers that adapt features from the student model to match the teacher
+- **DecayingCyclicalLR**: Learning rate scheduler with adaptive decay for optimal convergence
+- **DistillationCallback**: Core component managing the knowledge transfer process
+- **VisDroneDataset**: Custom dataset handler with class merging (pedestrian + people → person)
+
+## Technical Details
+
+### Model Architecture
+
+The project uses YOLOv12 models at different scales:
+- Teacher model: YOLOv12x (larger, more accurate)
+- Student model: YOLOv12n (smaller, faster)
+
+### Distillation Approach
+
+The knowledge distillation process focuses on feature-level knowledge transfer:
+1. **Feature-level distillation**: Transferring intermediate feature representations from specific network layers
+2. **Feature adaptation:**: Custom neural network layers transform student features to match teacher dimensions
+3. **Cosine similarity loss**: Measuring and minimizing the difference between adapted student features and teacher features
+4. **Adaptive loss weighting**: Dynamically balancing the contribution of detection loss vs. distillation loss using learnable parameters
+5. **Layer importance weighting**: Learning the relative importance of different layers in the distillation process
+
+## Project Roadmap
+
+Future development directions may include:
+- Expanding to different drone altitudes and perspectives
+- Furtherly customize the VisDrone dataset to better adapt it to the local context
+- Real-time deployment on edge devices
+- Integration with streamed video analysis
+- Adding semantic segmentation capabilities
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
