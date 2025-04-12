@@ -4,7 +4,7 @@
 
 "Eye in the Sky" is a computer vision project developed as a thesis project for the Master of Science degree in Computer Science with Artificial Intelligence specialization at the Università degli Studi di Bari (UniBA). This research was supervised by Professor Gennaro Vessio and PhD Dr. Pasquale De Marinis.
 
-Focused on optimizing object detection models for drone imagery, it uses YOLOv12 models and implements knowledge distillation techniques to create efficient, lightweight models suitable for real-time detection on resource-constrained devices.
+Focused on optimizing object detection models for drone imagery, it uses [YOLOv12](https://github.com/sunsmarterjie/yolov12) models within [Ultralytics](https://www.ultralytics.com/)  package and implements knowledge distillation techniques to create efficient, lightweight models suitable for real-time detection on resource-constrained devices.
 
 The system can detect multiple object categories from the VisDrone dataset, including people, vehicles, and other common road/urban elements. While the current implementation focuses on object detection fundamentals, it provides the foundation for more advanced applications like traffic monitoring, search and rescue, or emergency response assistance.
 
@@ -114,4 +114,4 @@ Future development directions may include:
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+This project is licensed under the MIT License - see the [LICENSE](https://github.com/francescoperagine/EyeInTheSky/blob/main/LICENSE) file for details.
