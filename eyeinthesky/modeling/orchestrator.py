@@ -80,6 +80,7 @@ class DistillationOrchestrator:
         self.max_lr = kwargs.get("max_lr", 0.01)
         self.cycle_size = kwargs.get("cycle_size", 20)
         self.group_scalers = kwargs.get("group_scalers", {0: 1.0, 1: 1.0, 2: 1.0})
+        self.visualize_feature_plot = kwargs.get("visualize_feature_plot", False)
         self.feature_plot_interval = kwargs.get("feature_plot_interval", 20)
         
         # Access models for convenience
@@ -107,10 +108,12 @@ class DistillationOrchestrator:
 
         # Visualization callback
 
-        visualization_callback = FeatureVisualizationCallback(layers=self.feature_layers, interval=self.feature_plot_interval)
+        if self.visualize_feature_plot:
 
-        self.student_trainer.add_callback("on_train_epoch_start", visualization_callback.set_hooks)
-        self.student_trainer.add_callback("on_train_epoch_end", visualization_callback.plot_figures)
+            visualization_callback = FeatureVisualizationCallback(layers=self.feature_layers, interval=self.feature_plot_interval)
+
+            self.student_trainer.add_callback("on_train_epoch_start", visualization_callback.set_hooks)
+            self.student_trainer.add_callback("on_train_epoch_end", visualization_callback.plot_figures)
 
 
         if self.use_cyclical_lr:

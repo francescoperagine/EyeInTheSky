@@ -72,10 +72,9 @@ For experimentation and development:
 ```bash
 cd eyeinthesky/notebooks
 ```
-
-2. Train a teacher model using `YOLO_VisDrone_train.ipynb`
-3. Update the configuration in `YOLO_VisDrone_distillation.ipynb` with the appropriate paths
-4. Run distillation using `YOLO_VisDrone_distillation.ipynb`
+2. Prepare the dataset once with `prepare_dataset.ipynb`
+3. Train a teacher model using `train.ipynb`
+4. Run distillation using `distillation.ipynb`
 
 ### Key Components
 

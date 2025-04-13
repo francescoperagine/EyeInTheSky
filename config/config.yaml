@@ -5,6 +5,7 @@ wandb:
 distillation:
   use_cyclical_lr: False
   feature_layers: [20]
+  visualize_feature_plot: False
   feature_plot_interval: 20
   temperature: 2.0
   alpha: 0.5
