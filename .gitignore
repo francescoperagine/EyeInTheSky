@@ -10,6 +10,12 @@
 
 # Runs
 /runs/
+/wandb/
+/notebooks/runs/
+/notebooks/wandb/
+/notebooks/EyeInTheSky/
+/notebooks/reports/
+/notebooks/artifacts/
 
 *.pt
 
